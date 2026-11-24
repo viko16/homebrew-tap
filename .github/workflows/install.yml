@@ -1,0 +1,41 @@
+name: Test installation
+
+on:
+  push:
+    branches: [main]
+    paths: ['Casks/**', '.github/workflows/install.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - name: Install both casks from the public tap
+        run: brew install --cask viko16/tap/agent-webkit viko16/tap/whistle-menubar
+      - name: Start Agent WebKit through the CLI
+        run: |
+          test -L "$(command -v awb)"
+          awb version
+          awb daemon --socket /tmp/awb-install.sock --data-dir "$RUNNER_TEMP/awb-data" &
+          for attempt in {1..20}; do
+            if [[ -S /tmp/awb-install.sock ]]; then break; fi
+            sleep 1
+          done
+          awb status --socket /tmp/awb-install.sock
+          awb shutdown --all --socket /tmp/awb-install.sock
+      - name: Launch Whistle Menubar
+        run: |
+          app=/Applications/whistle-menubar.app
+          open "$app"
+          sleep 3
+          pgrep -f "^$app/Contents/MacOS/whistle-menubar"
+      - name: Uninstall and check artifacts
+        run: |
+          brew uninstall --cask agent-webkit whistle-menubar
+          test ! -e '/Applications/Agent WebKit.app'
+          test ! -e /Applications/whistle-menubar.app
+          test ! -L "$(brew --prefix)/bin/awb"
