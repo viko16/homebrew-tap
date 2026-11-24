@@ -29,11 +29,14 @@ jobs:
           awb shutdown --all --socket /tmp/awb-install.sock
       - name: Launch Whistle Menubar
         run: |
-          app=/Applications/whistle-menubar.app
-          open "$app"
+          /Applications/whistle-menubar.app/Contents/MacOS/whistle-menubar &
+          menu_pid=$!
           sleep 3
-          pgrep -f "^$app/Contents/MacOS/whistle-menubar"
+          kill -0 "$menu_pid"
+          kill -TERM "$menu_pid"
+          wait "$menu_pid" || test "$?" -eq 143
       - name: Uninstall and check artifacts
+        if: ${{ !cancelled() }}
         run: |
           brew uninstall --cask agent-webkit whistle-menubar
           test ! -e '/Applications/Agent WebKit.app'
