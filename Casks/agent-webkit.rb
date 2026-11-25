@@ -1,6 +1,6 @@
 cask "agent-webkit" do
-  version "0.2.2"
-  sha256 "6f8db517d9e723d06be3b5c4401963eadccc81342f5bf4250e2aa369d858f22f"
+  version "0.2.3"
+  sha256 "f7c59538a77eca35a3001fac90dcb4f763a63dad12063ae319c38dea1d1076f4"
 
   url "https://github.com/viko16/agent-webkit/releases/download/v#{version}/AgentWebKit-v#{version}-macos-arm64.zip"
   name "Agent WebKit"
